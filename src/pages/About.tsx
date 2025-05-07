@@ -1,11 +1,12 @@
-
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, Suspense } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import { Avatar } from "@/components/ui/avatar";
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { Canvas } from '@react-three/fiber';
+import ParallaxBackground from '@/components/ParallaxBackground';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -73,12 +74,21 @@ const About = () => {
   const opacity = useTransform(scrollYProgress, [0, 0.2, 0.9, 1], [1, 0.8, 0.4, 0]);
   
   const smoothY = useSpring(y, { stiffness: 100, damping: 30 });
-  
+
   return (
-    <div className="min-h-screen bg-cosmic-dark">
+    <div className="min-h-screen bg-cosmic-dark relative">
+      {/* 3D Background Canvas */}
+      <div className="fixed inset-0 z-0 opacity-60">
+        <Canvas camera={{ position: [0, 0, 15], fov: 60 }}>
+          <Suspense fallback={null}>
+            <ParallaxBackground />
+          </Suspense>
+        </Canvas>
+      </div>
+
       <Header />
       
-      <main className="pt-20">
+      <main className="pt-20 relative z-10">
         {/* Hero Section */}
         <section className="relative h-[70vh] flex items-center overflow-hidden" ref={targetRef}>
           <motion.div 
@@ -91,7 +101,7 @@ const About = () => {
               backgroundPosition: 'center'
             }}
           />
-          <div className="absolute inset-0 bg-cosmic-dark/60 z-0" />
+          <div className="absolute inset-0 bg-cosmic-dark/70 z-0" />
           
           <div className="container mx-auto px-4 relative z-10">
             <motion.div
