@@ -58,7 +58,8 @@ const ServiceNode = ({ position = [0, 0, 0], color = "#9b87f5", size = 0.5, text
 
 // Connection line between service nodes
 const ConnectionLine = ({ start, end, color = "#ffffff" }) => {
-  const ref = useRef<THREE.Line>(null!)
+  // Fix: Change the ref type to avoid type mismatch
+  const ref = useRef()
   
   useEffect(() => {
     if (ref.current) {
