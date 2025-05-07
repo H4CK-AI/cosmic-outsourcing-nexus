@@ -58,8 +58,8 @@ const ServiceNode = ({ position = [0, 0, 0], color = "#9b87f5", size = 0.5, text
 
 // Connection line between service nodes
 const ConnectionLine = ({ start, end, color = "#ffffff" }) => {
-  // Fix: Change the ref type to avoid type mismatch
-  const ref = useRef()
+  // Fix: Use properly typed ref for THREE.Line
+  const ref = useRef<THREE.LineSegments>()
   
   useEffect(() => {
     if (ref.current) {
@@ -73,10 +73,10 @@ const ConnectionLine = ({ start, end, color = "#ffffff" }) => {
   }, [start, end])
   
   return (
-    <line ref={ref}>
+    <lineSegments ref={ref}>
       <bufferGeometry />
       <lineBasicMaterial color={color} transparent opacity={0.3} />
-    </line>
+    </lineSegments>
   )
 }
 
