@@ -58,21 +58,21 @@ const ServiceNode = ({ position = [0, 0, 0], color = "#9b87f5", size = 0.5, text
 
 // Connection line between service nodes
 const ConnectionLine = ({ start, end, color = "#ffffff" }) => {
-  const lineRef = useRef<THREE.Line>(null!)
+  const ref = useRef<THREE.Line>(null!)
   
   useEffect(() => {
-    if (lineRef.current) {
+    if (ref.current) {
       const points = [
         new THREE.Vector3(...start),
         new THREE.Vector3(...end)
       ]
       const geometry = new THREE.BufferGeometry().setFromPoints(points)
-      lineRef.current.geometry = geometry
+      ref.current.geometry = geometry
     }
   }, [start, end])
   
   return (
-    <line ref={lineRef}>
+    <line ref={ref}>
       <bufferGeometry />
       <lineBasicMaterial color={color} transparent opacity={0.3} />
     </line>
