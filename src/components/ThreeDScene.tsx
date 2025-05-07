@@ -1,5 +1,5 @@
 
-import { useRef, useState, useEffect } from 'react'
+import React, { useRef, useState, useEffect, Suspense } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { useGLTF, OrbitControls, Stars, Text, Float } from '@react-three/drei'
 import * as THREE from 'three'
@@ -58,21 +58,21 @@ const ServiceNode = ({ position = [0, 0, 0], color = "#9b87f5", size = 0.5, text
 
 // Connection line between service nodes
 const ConnectionLine = ({ start, end, color = "#ffffff" }) => {
-  const ref = useRef<THREE.Line>(null!)
+  const lineRef = useRef<THREE.Line>(null!)
   
-  useFrame(() => {
-    if (ref.current) {
+  useEffect(() => {
+    if (lineRef.current) {
       const points = [
         new THREE.Vector3(...start),
         new THREE.Vector3(...end)
       ]
       const geometry = new THREE.BufferGeometry().setFromPoints(points)
-      ref.current.geometry = geometry
+      lineRef.current.geometry = geometry
     }
-  })
+  }, [start, end])
   
   return (
-    <line ref={ref}>
+    <line ref={lineRef}>
       <bufferGeometry />
       <lineBasicMaterial color={color} transparent opacity={0.3} />
     </line>
@@ -94,7 +94,9 @@ const ServiceOrbit = ({ radius = 3, speed = 0.5, height = 0, services = [], colo
   const groupRef = useRef<THREE.Group>(null!)
   
   useFrame(({ clock }) => {
-    groupRef.current.rotation.y = clock.getElapsedTime() * speed * 0.1
+    if (groupRef.current) {
+      groupRef.current.rotation.y = clock.getElapsedTime() * speed * 0.1
+    }
   })
   
   return (
@@ -123,7 +125,7 @@ const StarField = () => {
   return <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={0.5} />
 }
 
-// Main scene component
+// Main scene component with error boundary wrapper
 const Scene = () => {
   const { camera } = useThree()
   
@@ -166,11 +168,52 @@ const Scene = () => {
   )
 }
 
+// ErrorBoundary component to catch and handle Three.js errors
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error("Three.js rendering error:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="h-full w-full flex items-center justify-center">
+          <div className="text-white text-center p-4">
+            <h2 className="text-xl mb-2">3D Visualization Error</h2>
+            <p>We're having trouble rendering the 3D scene.</p>
+            <button 
+              className="mt-4 px-4 py-2 bg-cosmic-accent rounded-md"
+              onClick={() => this.setState({ hasError: false })}
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
 const ThreeDScene = () => {
   return (
     <div className="h-screen w-full">
       <Canvas shadows dpr={[1, 2]}>
-        <Scene />
+        <ErrorBoundary>
+          <Suspense fallback={null}>
+            <Scene />
+          </Suspense>
+        </ErrorBoundary>
       </Canvas>
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center z-10 pointer-events-none">
         <h1 className="text-5xl md:text-6xl font-bold cosmic-text-gradient mb-4">
