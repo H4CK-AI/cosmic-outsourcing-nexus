@@ -1,73 +1,77 @@
-# Welcome to your Lovable project
 
-## Project info
+# Nexvora Outsourcing - 3D Space-Themed Experience
 
-**URL**: https://lovable.dev/projects/e9b93182-9c6c-4d5a-bdcf-ce329a06c279
+An immersive, space-inspired 3D web experience for Nexvora Outsourcing, showcasing Business Process Management (BPM), Legal Process Outsourcing (LPO), and IT Services in an interactive cosmic environment.
 
-## How can I edit this code?
+## Features
 
-There are several ways of editing your application.
+- **Interactive 3D Universe**: Immersive Three.js powered experience with orbital animations
+- **Space-Inspired UI**: Grayscale cosmic theme with subtle purple/blue accents
+- **Service Visualizations**: Dynamic 3D representations of outsourcing services
+- **Responsive Design**: Fully optimized for all device sizes
+- **Performance Optimized**: Efficient 3D rendering with optimized assets
 
-**Use Lovable**
+## Technology Stack
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/e9b93182-9c6c-4d5a-bdcf-ce329a06c279) and start prompting.
+- **React**: UI component architecture
+- **TypeScript**: Type-safe code
+- **Three.js / React Three Fiber**: 3D graphics rendering
+- **GSAP**: Advanced animations and scrolling effects
+- **Tailwind CSS**: Utility-first styling
+- **Zustand**: Lightweight state management
 
-Changes made via Lovable will be committed automatically to this repo.
+## Project Structure
 
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+src/
+├── components/
+│   ├── ThreeDScene.tsx    # Main 3D scene with orbital animations
+│   ├── Header.tsx         # Navigation header
+│   ├── ServiceSection.tsx # Service showcase
+│   ├── BenefitsSection.tsx # Benefits display
+│   ├── CallToAction.tsx   # CTA section
+│   ├── Footer.tsx         # Site footer
+│   └── Loader.tsx         # 3D loading screen
+├── pages/
+│   ├── Index.tsx          # Main landing page
+│   └── NotFound.tsx       # 404 page
+└── ...
 ```
 
-**Edit a file directly in GitHub**
+## Performance Optimization
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+The project implements several performance optimization strategies:
 
-**Use GitHub Codespaces**
+- **Efficient 3D Rendering**: Using instanced meshes and proper scene management
+- **Progressive Loading**: Assets load progressively with priority given to visible elements
+- **Code Splitting**: Components are loaded only when needed
+- **Responsive Design**: Different levels of detail based on device capabilities
+- **Caching**: Important assets are cached for improved subsequent loads
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Accessibility
 
-## What technologies are used for this project?
+Despite being a 3D-heavy experience, the site maintains accessibility through:
 
-This project is built with:
+- Keyboard navigation support
+- Screen reader compatibility
+- Fallback text descriptions for 3D elements
+- Sufficient color contrast and readable text
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Getting Started
 
-## How can I deploy this project?
+1. Clone this repository
+2. Install dependencies with `npm install`
+3. Run the development server with `npm run dev`
+4. Build for production with `npm run build`
 
-Simply open [Lovable](https://lovable.dev/projects/e9b93182-9c6c-4d5a-bdcf-ce329a06c279) and click on Share -> Publish.
+## Future Enhancements
 
-## Can I connect a custom domain to my Lovable project?
+- Additional interactive service demonstrations
+- Global outsourcing map visualization
+- Cost savings calculator
+- Client testimonial showcase
+- More detailed service pages
 
-Yes, you can!
+## License
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+© Nexvora Outsourcing. All rights reserved.
