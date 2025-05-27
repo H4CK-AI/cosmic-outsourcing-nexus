@@ -81,7 +81,6 @@ const ServiceNode = ({ position = [0, 0, 0], color = "#9b87f5", size = 0.5, text
             color="white"
             anchorX="center"
             anchorY="middle"
-            font="/fonts/Inter-Bold.woff"
             outlineWidth={0.02}
             outlineColor="#000000"
             material-transparent
@@ -91,7 +90,7 @@ const ServiceNode = ({ position = [0, 0, 0], color = "#9b87f5", size = 0.5, text
           </Text>
         )}
         
-        {/* Glow effect */}
+        {/* Enhanced glow effect */}
         <mesh position={[0, 0, 0]} scale={[2, 2, 2]}>
           <sphereGeometry args={[size, 16, 16]} />
           <meshBasicMaterial 
@@ -206,12 +205,68 @@ const ServiceOrbit = ({ radius = 3, speed = 0.5, height = 0, services = [], colo
   )
 }
 
-// Enhanced starfield
+// Enhanced starfield with more depth
 const StarField = () => {
   return (
     <group>
       <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={0.5} />
       <Stars radius={200} depth={100} count={3000} factor={6} saturation={0.2} fade speed={0.3} />
+      <Stars radius={300} depth={150} count={2000} factor={8} saturation={0.4} fade speed={0.2} />
+    </group>
+  )
+}
+
+// Enhanced central globe with better materials
+const CentralGlobe = () => {
+  const globeRef = useRef<THREE.Mesh>(null!)
+  
+  useFrame(({ clock }) => {
+    if (globeRef.current) {
+      globeRef.current.rotation.y = clock.elapsedTime * 0.1
+      globeRef.current.rotation.x = Math.sin(clock.elapsedTime * 0.3) * 0.1
+    }
+  })
+  
+  return (
+    <group>
+      <mesh ref={globeRef}>
+        <sphereGeometry args={[1.2, 64, 64]} />
+        <meshStandardMaterial 
+          color="#ffd93d"
+          roughness={0.1}
+          metalness={0.8}
+          emissive="#ffd93d"
+          emissiveIntensity={0.3}
+          transparent
+          opacity={0.9}
+        />
+      </mesh>
+      
+      {/* Outer glow sphere */}
+      <mesh scale={[1.5, 1.5, 1.5]}>
+        <sphereGeometry args={[1.2, 32, 32]} />
+        <meshBasicMaterial 
+          color="#ffd93d"
+          transparent 
+          opacity={0.1}
+          blending={THREE.AdditiveBlending}
+        />
+      </mesh>
+      
+      {/* Text label */}
+      <Text
+        position={[0, 2.5, 0]}
+        fontSize={0.4}
+        color="white"
+        anchorX="center"
+        anchorY="middle"
+        outlineWidth={0.03}
+        outlineColor="#000000"
+        material-transparent
+        material-opacity={0.95}
+      >
+        NEXVORA
+      </Text>
     </group>
   )
 }
@@ -229,7 +284,7 @@ const Scene = () => {
   const lpoServices = ["Legal Review", "Contract Analysis", "Compliance", "Research", "Documentation"]
   const itServices = ["Development", "Cloud Services", "Cybersecurity", "Data Analytics", "AI Solutions"]
   
-  // Vibrant color palette
+  // Enhanced vibrant color palette
   const colors = {
     bpm: "#ff6b6b",      // Coral red
     lpo: "#4ecdc4",      // Turquoise
@@ -242,27 +297,29 @@ const Scene = () => {
   
   return (
     <>
-      <ambientLight intensity={0.4} color="#ffffff" />
-      <pointLight position={[10, 10, 10]} intensity={1.5} color={colors.accent1} />
-      <pointLight position={[-10, -10, -10]} intensity={0.8} color={colors.accent2} />
-      <pointLight position={[0, 15, 0]} intensity={1} color={colors.accent3} />
+      {/* Enhanced lighting setup */}
+      <ambientLight intensity={0.5} color="#ffffff" />
+      <pointLight position={[10, 10, 10]} intensity={2} color={colors.accent1} />
+      <pointLight position={[-10, -10, -10]} intensity={1.2} color={colors.accent2} />
+      <pointLight position={[0, 15, 0]} intensity={1.5} color={colors.accent3} />
+      <spotLight 
+        position={[0, 20, 0]} 
+        angle={0.3} 
+        penumbra={1} 
+        intensity={2} 
+        color={colors.center}
+        castShadow
+      />
       
       <StarField />
       
-      {/* Enhanced central node */}
-      <ServiceNode 
-        position={[0, 0, 0]} 
-        color={colors.center} 
-        size={1.2} 
-        text="NEXVORA" 
-        hover={0.8} 
-        shape="sphere"
-      />
+      {/* Enhanced central globe */}
+      <CentralGlobe />
       
-      {/* Enhanced Service Orbits with different shapes and colors */}
+      {/* Enhanced Service Orbits with different shapes and improved animations */}
       <ServiceOrbit 
         radius={5} 
-        speed={0.3} 
+        speed={0.4} 
         height={0} 
         services={bpmServices} 
         color={colors.bpm} 
@@ -270,7 +327,7 @@ const Scene = () => {
       />
       <ServiceOrbit 
         radius={7.5} 
-        speed={-0.2} 
+        speed={-0.25} 
         height={1.5} 
         services={lpoServices} 
         color={colors.lpo} 
@@ -278,37 +335,51 @@ const Scene = () => {
       />
       <ServiceOrbit 
         radius={10} 
-        speed={0.15} 
+        speed={0.2} 
         height={-1.2} 
         services={itServices} 
         color={colors.it} 
         shape="torus"
       />
       
-      {/* Enhanced connections with multiple colors */}
+      {/* Enhanced connections with multiple colors and better animations */}
       <ConnectionLine start={[0, 0, 0]} end={[0, 0, 5]} color={colors.bpm} />
       <ConnectionLine start={[0, 0, 0]} end={[0, 1.5, 7.5]} color={colors.lpo} />
       <ConnectionLine start={[0, 0, 0]} end={[0, -1.2, 10]} color={colors.it} />
       
-      {/* Additional accent connections */}
+      {/* Additional dynamic connections */}
       <ConnectionLine start={[3, 0, 3]} end={[-3, 1, -3]} color={colors.accent1} />
       <ConnectionLine start={[-4, 0, 2]} end={[4, -1, -4]} color={colors.accent2} />
+      <ConnectionLine start={[2, 2, -2]} end={[-2, -2, 4]} color={colors.accent3} />
       
       <OrbitControls 
-        enableZoom={false}
+        enableZoom={true}
         enablePan={false}
         autoRotate
-        autoRotateSpeed={1}
+        autoRotateSpeed={1.5}
         minPolarAngle={Math.PI / 6}
         maxPolarAngle={Math.PI / 1.5}
-        maxAzimuthAngle={Math.PI / 4}
-        minAzimuthAngle={-Math.PI / 4}
+        maxAzimuthAngle={Math.PI / 3}
+        minAzimuthAngle={-Math.PI / 3}
+        minDistance={8}
+        maxDistance={20}
       />
     </>
   )
 }
 
-// Error boundary
+// Enhanced loading fallback
+const LoadingFallback = () => (
+  <div className="h-full w-full flex items-center justify-center bg-cosmic-dark">
+    <div className="text-white text-center p-8">
+      <div className="animate-spin w-16 h-16 border-4 border-cosmic-accent border-t-transparent rounded-full mx-auto mb-4"></div>
+      <h2 className="text-2xl mb-4 cosmic-text-gradient">Loading 3D Universe...</h2>
+      <p className="text-white/60">Initializing premium 3D experience</p>
+    </div>
+  </div>
+)
+
+// Enhanced error boundary
 class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean}> {
   constructor(props: {children: React.ReactNode}) {
     super(props);
@@ -316,6 +387,7 @@ class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasErr
   }
 
   static getDerivedStateFromError(error: any) {
+    console.error("3D Scene Error:", error);
     return { hasError: true };
   }
 
@@ -348,7 +420,16 @@ class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasErr
 const ThreeDScene = () => {
   return (
     <div className="h-screen w-full relative">
-      <Canvas shadows dpr={[1, 2]} gl={{ antialias: true, alpha: true }}>
+      <Canvas 
+        shadows 
+        dpr={[1, 2]} 
+        gl={{ 
+          antialias: true, 
+          alpha: true,
+          powerPreference: "high-performance"
+        }}
+        camera={{ position: [0, 3, 12], fov: 75 }}
+      >
         <ErrorBoundary>
           <Suspense fallback={null}>
             <Scene />
@@ -356,7 +437,7 @@ const ThreeDScene = () => {
         </ErrorBoundary>
       </Canvas>
       
-      {/* Enhanced overlay text */}
+      {/* Enhanced overlay text with better animations */}
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center z-10 pointer-events-none">
         <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold cosmic-text-gradient mb-6 animate-fade-in">
           Nexvora Outsourcing
@@ -365,11 +446,11 @@ const ThreeDScene = () => {
           Scale Your Business. Explore the Universe of Outsourcing Solutions.
         </p>
         
-        {/* Premium glow effect */}
+        {/* Enhanced premium glow effect */}
         <div className="absolute inset-0 bg-gradient-radial from-cosmic-accent/20 via-transparent to-transparent blur-3xl -z-10"></div>
       </div>
       
-      {/* Scroll indicator */}
+      {/* Enhanced scroll indicator */}
       <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white/60 animate-bounce pointer-events-none">
         <div className="flex flex-col items-center">
           <span className="text-sm mb-2">Scroll to explore</span>

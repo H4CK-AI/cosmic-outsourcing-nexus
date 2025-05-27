@@ -11,11 +11,23 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     react(),
-    // Removed componentTagger to fix Three.js conflicts
-  ].filter(Boolean),
+  ],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  optimizeDeps: {
+    include: ['three', '@react-three/fiber', '@react-three/drei']
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          three: ['three'],
+          'react-three': ['@react-three/fiber', '@react-three/drei']
+        }
+      }
+    }
+  }
 }));
