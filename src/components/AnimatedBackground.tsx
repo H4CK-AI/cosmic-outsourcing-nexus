@@ -1,11 +1,17 @@
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Sphere, MeshDistortMaterial, Float } from '@react-three/drei';
 import * as THREE from 'three';
 
-const AnimatedSphere = ({ position, color, speed = 1 }) => {
-  const meshRef = useRef<THREE.Mesh>(null!);
+interface AnimatedSphereProps {
+  position: [number, number, number];
+  color: string;
+  speed?: number;
+}
+
+const AnimatedSphere: React.FC<AnimatedSphereProps> = ({ position, color, speed = 1 }) => {
+  const meshRef = useRef<THREE.Mesh>(null);
   
   useFrame(({ clock }) => {
     if (meshRef.current) {
@@ -19,7 +25,6 @@ const AnimatedSphere = ({ position, color, speed = 1 }) => {
       <Sphere ref={meshRef} args={[1, 100, 200]} position={position}>
         <MeshDistortMaterial
           color={color}
-          attach="material"
           distort={0.3}
           speed={2}
           roughness={0}
@@ -31,7 +36,7 @@ const AnimatedSphere = ({ position, color, speed = 1 }) => {
   );
 };
 
-const AnimatedBackground = () => {
+const AnimatedBackground: React.FC = () => {
   return (
     <div className="fixed inset-0 -z-10">
       <Canvas camera={{ position: [0, 0, 5], fov: 75 }}>

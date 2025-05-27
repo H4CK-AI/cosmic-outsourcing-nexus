@@ -2,7 +2,12 @@
 import React, { useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
-const LiquidBackground = ({ intensity = 1, children }) => {
+interface LiquidBackgroundProps {
+  intensity?: number;
+  children: React.ReactNode;
+}
+
+const LiquidBackground: React.FC<LiquidBackgroundProps> = ({ intensity = 1, children }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -78,8 +83,8 @@ const LiquidBackground = ({ intensity = 1, children }) => {
             key={i}
             className="particle"
             initial={{
-              x: Math.random() * window.innerWidth,
-              y: Math.random() * window.innerHeight,
+              x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1920),
+              y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 1080),
             }}
             animate={{
               y: [null, -20, 20, -10, 0],

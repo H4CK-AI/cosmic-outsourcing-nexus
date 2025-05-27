@@ -5,16 +5,22 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { Stars } from '@react-three/drei';
 
 // Parallax layer component
-type ParallaxLayerProps = {
+interface ParallaxLayerProps {
   texture: THREE.Texture | null;
   speed?: number;
   scale?: [number, number, number];
   position?: [number, number, number];
   opacity?: number;
-};
+}
 
-const ParallaxLayer = ({ texture, speed = 0.01, scale = [30, 30, 1], position = [0, 0, 0], opacity = 0.3 }: ParallaxLayerProps) => {
-  const mesh = useRef<THREE.Mesh>(null!);
+const ParallaxLayer: React.FC<ParallaxLayerProps> = ({ 
+  texture, 
+  speed = 0.01, 
+  scale = [30, 30, 1], 
+  position = [0, 0, 0], 
+  opacity = 0.3 
+}) => {
+  const mesh = useRef<THREE.Mesh>(null);
   
   useFrame(({ clock }) => {
     if (mesh.current) {
@@ -38,8 +44,13 @@ const ParallaxLayer = ({ texture, speed = 0.01, scale = [30, 30, 1], position = 
   );
 };
 
-const ParticleField = ({ count = 3000, size = 0.01 }) => {
-  const mesh = useRef<THREE.Points>(null!);
+interface ParticleFieldProps {
+  count?: number;
+  size?: number;
+}
+
+const ParticleField: React.FC<ParticleFieldProps> = ({ count = 3000, size = 0.01 }) => {
+  const mesh = useRef<THREE.Points>(null);
   
   useFrame(({ clock }) => {
     if (mesh.current) {
@@ -79,8 +90,12 @@ const ParticleField = ({ count = 3000, size = 0.01 }) => {
   );
 };
 
-const ParallaxBackground = ({ mouseMove = true }) => {
-  const groupRef = useRef<THREE.Group>(null!);
+interface ParallaxBackgroundProps {
+  mouseMove?: boolean;
+}
+
+const ParallaxBackground: React.FC<ParallaxBackgroundProps> = ({ mouseMove = true }) => {
+  const groupRef = useRef<THREE.Group>(null);
   const { camera, size } = useThree();
   const [nebulaTexture, setNebulaTexture] = useState<THREE.Texture | null>(null);
   
