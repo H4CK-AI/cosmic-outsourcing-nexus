@@ -265,7 +265,7 @@ const Scene = () => {
         speed={0.3} 
         height={0} 
         services={bpmServices} 
-        color={colors.bmp} 
+        color={colors.bpm} 
         shape="sphere"
       />
       <ServiceOrbit 
