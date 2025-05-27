@@ -1,7 +1,7 @@
 
 import React, { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
-import { useFrame, useThree, useLoader } from '@react-three/fiber';
+import { useFrame, useThree } from '@react-three/fiber';
 import { Stars } from '@react-three/drei';
 
 // Parallax layer component
@@ -84,17 +84,24 @@ const ParallaxBackground = ({ mouseMove = true }) => {
   const { camera, size } = useThree();
   const [nebulaTexture, setNebulaTexture] = useState<THREE.Texture | null>(null);
   
-  // Load texture safely
-  const texture = useLoader(THREE.TextureLoader, '/images/nebula.png', undefined, (error) => {
-    console.log('Could not load nebula texture, continuing without it');
-    setNebulaTexture(null);
-  });
-  
+  // Load texture safely using THREE.TextureLoader directly
   useEffect(() => {
-    if (texture) {
-      setNebulaTexture(texture);
-    }
-  }, [texture]);
+    const loader = new THREE.TextureLoader();
+    loader.load(
+      '/images/nebula.png',
+      (texture) => {
+        console.log('Nebula texture loaded successfully');
+        setNebulaTexture(texture);
+      },
+      (progress) => {
+        console.log('Loading progress:', progress);
+      },
+      (error) => {
+        console.log('Could not load nebula texture, continuing without it:', error);
+        setNebulaTexture(null);
+      }
+    );
+  }, []);
 
   // Mouse-based camera movement for immersive parallax
   useEffect(() => {
