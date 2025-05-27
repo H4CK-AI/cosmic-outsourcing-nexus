@@ -1,8 +1,9 @@
 import { useRef, useState } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import LiquidBackground from '@/components/LiquidBackground';
-import AnimatedBackground from '@/components/AnimatedBackground';
+import MotionGraphics from '@/components/MotionGraphics';
+import EnhancedAnimatedBackground from '@/components/EnhancedAnimatedBackground';
+import ImagePlaceholder from '@/components/ImagePlaceholder';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -30,7 +31,7 @@ const caseStudies: CaseStudy[] = [
     title: "FinTech Digital Transformation",
     client: "Global Bank Corp",
     industry: "Financial Services",
-    image: "/images/case-study-1.jpg",
+    image: "https://images.unsplash.com/photo-1559589689-577aabd1db4f?w=600&h=400&fit=crop",
     tags: ["Digital Transformation", "AI", "Banking"],
     summary: "Helped a leading financial institution modernize their legacy systems and implement AI-driven solutions, resulting in 40% faster transaction processing and improved customer satisfaction.",
     results: [
@@ -44,7 +45,7 @@ const caseStudies: CaseStudy[] = [
     title: "Healthcare Data Management",
     client: "MedCare Solutions",
     industry: "Healthcare",
-    image: "/images/case-study-2.jpg",
+    image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=600&h=400&fit=crop",
     tags: ["Data Management", "Healthcare", "Security"],
     summary: "Developed a secure and compliant data management system for a healthcare provider, enabling efficient access to patient records while maintaining strict privacy standards.",
     results: [
@@ -58,7 +59,7 @@ const caseStudies: CaseStudy[] = [
     title: "E-Commerce Platform Scalability",
     client: "ShopGlobal",
     industry: "Retail",
-    image: "/images/case-study-3.jpg",
+    image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&h=400&fit=crop",
     tags: ["E-Commerce", "Cloud", "Scalability"],
     summary: "Helped an online retailer scale their e-commerce platform to handle 10x traffic growth during peak seasons, eliminating downtime and boosting sales conversion rates.",
     results: [
@@ -72,7 +73,7 @@ const caseStudies: CaseStudy[] = [
     title: "Legal Document Processing Automation",
     client: "LawFirst Partners",
     industry: "Legal",
-    image: "/images/case-study-4.jpg",
+    image: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&h=400&fit=crop",
     tags: ["Legal", "Automation", "AI"],
     summary: "Implemented an AI-powered document analysis system for a law firm, reducing contract review time by 75% while maintaining accuracy and compliance.",
     results: [
@@ -86,7 +87,7 @@ const caseStudies: CaseStudy[] = [
     title: "Supply Chain Optimization",
     client: "Global Manufacturing Inc.",
     industry: "Manufacturing",
-    image: "/images/case-study-5.jpg",
+    image: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&h=400&fit=crop",
     tags: ["Supply Chain", "IoT", "Analytics"],
     summary: "Revolutionized a manufacturer's supply chain with IoT sensors and predictive analytics, reducing inventory costs and preventing production delays.",
     results: [
@@ -100,7 +101,7 @@ const caseStudies: CaseStudy[] = [
     title: "AI-Powered Customer Service",
     client: "TeleTech Services",
     industry: "Telecommunications",
-    image: "/images/case-study-6.jpg",
+    image: "https://images.unsplash.com/photo-1423666639041-f56000c27a9a?w=600&h=400&fit=crop",
     tags: ["Customer Service", "AI", "Automation"],
     summary: "Deployed an AI chatbot and intelligent routing system for a telecom provider, handling 65% of customer inquiries automatically with high satisfaction rates.",
     results: [
@@ -127,10 +128,10 @@ const CaseStudyCard = ({ caseStudy }: { caseStudy: CaseStudy }) => {
     >
       <Card className="overflow-hidden border-cosmic-accent/20 h-full bg-cosmic-subtle/30 backdrop-blur-sm hover:border-cosmic-accent/40 transition-all duration-300 card-3d group">
         <div className="relative h-48 overflow-hidden">
-          <img 
-            src={caseStudy.image} 
-            alt={caseStudy.title} 
-            className="w-full h-full object-cover transition-transform duration-500 hover:scale-110" 
+          <ImagePlaceholder 
+            src={caseStudy.image}
+            alt={caseStudy.title}
+            className="w-full h-full transition-transform duration-500 hover:scale-110"
           />
           <div className="shimmer absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           <div className="absolute top-2 right-2">
@@ -207,9 +208,11 @@ const CaseStudies = () => {
   };
   
   return (
-    <LiquidBackground>
-      <AnimatedBackground />
-      <div className="min-h-screen relative z-10">
+    <div className="min-h-screen relative">
+      <MotionGraphics />
+      <EnhancedAnimatedBackground />
+      
+      <div className="relative z-10">
         <Header />
         
         <main className="pt-20">
@@ -222,12 +225,30 @@ const CaseStudies = () => {
                 transition={{ duration: 0.8 }}
                 className="text-center max-w-3xl mx-auto"
               >
-                <h1 className="text-5xl md:text-7xl font-bold cosmic-text-gradient mb-6 float-animation">Success Stories</h1>
-                <p className="text-xl text-white/70 mb-8">
+                <motion.h1 
+                  className="text-5xl md:text-7xl font-bold cosmic-text-gradient mb-6"
+                  animate={{ 
+                    backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+                  }}
+                  transition={{ duration: 5, repeat: Infinity }}
+                >
+                  Success Stories
+                </motion.h1>
+                <motion.p 
+                  className="text-xl text-white/70 mb-8"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3, duration: 0.8 }}
+                >
                   Explore how we've helped businesses across industries overcome challenges and achieve remarkable results
-                </p>
+                </motion.p>
                 
-                <div className="relative">
+                <motion.div 
+                  className="relative"
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.5, duration: 0.6 }}
+                >
                   <input
                     type="text"
                     placeholder="Search case studies..."
@@ -244,7 +265,7 @@ const CaseStudies = () => {
                   >
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
-                </div>
+                </motion.div>
               </motion.div>
             </div>
           </section>
@@ -347,7 +368,7 @@ const CaseStudies = () => {
         
         <Footer />
       </div>
-    </LiquidBackground>
+    </div>
   );
 };
 

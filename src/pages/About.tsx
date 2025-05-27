@@ -1,12 +1,13 @@
 import { useRef, useEffect, Suspense } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import MotionGraphics from '@/components/MotionGraphics';
+import EnhancedAnimatedBackground from '@/components/EnhancedAnimatedBackground';
+import ImagePlaceholder from '@/components/ImagePlaceholder';
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import { Avatar } from "@/components/ui/avatar";
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Canvas } from '@react-three/fiber';
-import ParallaxBackground from '@/components/ParallaxBackground';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -20,7 +21,11 @@ const TeamMember = ({ name, role, imageSrc, delay = 0 }) => {
       className="flex flex-col items-center"
     >
       <Avatar className="h-32 w-32 mb-4 ring-2 ring-cosmic-accent/30 ring-offset-4 ring-offset-cosmic-dark">
-        <img src={imageSrc} alt={name} className="object-cover" />
+        <ImagePlaceholder 
+          src={imageSrc}
+          alt={name}
+          className="object-cover w-full h-full rounded-full"
+        />
       </Avatar>
       <h4 className="text-xl font-semibold mb-1">{name}</h4>
       <p className="text-cosmic-highlight">{role}</p>
@@ -77,16 +82,9 @@ const About = () => {
 
   return (
     <div className="min-h-screen bg-cosmic-dark relative">
-      {/* 3D Background Canvas */}
-      <div className="fixed inset-0 z-0">
-        <Canvas camera={{ position: [0, 0, 15], fov: 60 }}>
-          <Suspense fallback={null}>
-            <ParallaxBackground />
-          </Suspense>
-        </Canvas>
-      </div>
+      <MotionGraphics />
+      <EnhancedAnimatedBackground />
 
-      {/* Content Container */}
       <div className="relative z-10 min-h-screen bg-cosmic-dark/90">
         <Header />
         
@@ -98,11 +96,14 @@ const About = () => {
               style={{ 
                 scale,
                 opacity,
-                backgroundImage: `url('/images/about-hero.jpg')`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center'
               }}
-            />
+            >
+              <ImagePlaceholder
+                src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1920&h=1080&fit=crop"
+                alt="About Nexvora"
+                className="w-full h-full object-cover"
+              />
+            </motion.div>
             <div className="absolute inset-0 bg-cosmic-dark/70 z-0" />
             
             <div className="container mx-auto px-4 relative z-10">
@@ -112,10 +113,23 @@ const About = () => {
                 transition={{ duration: 0.8 }}
                 className="text-center"
               >
-                <h1 className="text-5xl md:text-7xl font-bold cosmic-text-gradient mb-6">About Nexvora</h1>
-                <p className="text-xl md:text-2xl max-w-3xl mx-auto text-white/80">
+                <motion.h1 
+                  className="text-5xl md:text-7xl font-bold cosmic-text-gradient mb-6"
+                  animate={{ 
+                    backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+                  }}
+                  transition={{ duration: 6, repeat: Infinity }}
+                >
+                  About Nexvora
+                </motion.h1>
+                <motion.p 
+                  className="text-xl md:text-2xl max-w-3xl mx-auto text-white/80"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3, duration: 0.8 }}
+                >
                   We're on a mission to revolutionize outsourcing with advanced solutions that help businesses thrive
-                </p>
+                </motion.p>
               </motion.div>
             </div>
           </section>
@@ -150,9 +164,9 @@ const About = () => {
                   className="relative"
                 >
                   <div className="absolute -inset-4 rounded-xl bg-cosmic-accent/10 blur-xl z-0"></div>
-                  <img 
-                    src="/images/team-meeting.jpg" 
-                    alt="Team meeting" 
+                  <ImagePlaceholder
+                    src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&h=600&fit=crop"
+                    alt="Team meeting"
                     className="w-full h-auto rounded-xl relative z-10 border border-cosmic-accent/20"
                   />
                 </motion.div>
@@ -245,25 +259,25 @@ const About = () => {
                 <TeamMember 
                   name="Alex Chen" 
                   role="CEO & Founder" 
-                  imageSrc="/images/team-1.jpg" 
+                  imageSrc="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face" 
                   delay={0}
                 />
                 <TeamMember 
                   name="Sarah Johnson" 
                   role="CTO" 
-                  imageSrc="/images/team-2.jpg" 
+                  imageSrc="https://images.unsplash.com/photo-1494790108755-2616b612b13c?w=400&h=400&fit=crop&crop=face" 
                   delay={0.1}
                 />
                 <TeamMember 
                   name="Michael Patel" 
                   role="COO" 
-                  imageSrc="/images/team-3.jpg" 
+                  imageSrc="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face" 
                   delay={0.2}
                 />
                 <TeamMember 
                   name="Jessica Wong" 
                   role="CFO" 
-                  imageSrc="/images/team-4.jpg" 
+                  imageSrc="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face" 
                   delay={0.3}
                 />
               </div>
