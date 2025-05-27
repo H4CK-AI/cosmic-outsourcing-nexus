@@ -1,24 +1,29 @@
+
 import React, { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
-import { useFrame, useThree } from '@react-three/fiber';
-import { Stars, useTexture } from '@react-three/drei';
+import { useFrame, useThree, useLoader } from '@react-three/fiber';
+import { Stars } from '@react-three/drei';
 
 // Parallax layer component
 type ParallaxLayerProps = {
-  texture: THREE.Texture;
+  texture: THREE.Texture | null;
   speed?: number;
   scale?: [number, number, number];
   position?: [number, number, number];
   opacity?: number;
 };
+
 const ParallaxLayer = ({ texture, speed = 0.01, scale = [30, 30, 1], position = [0, 0, 0], opacity = 0.3 }: ParallaxLayerProps) => {
   const mesh = useRef<THREE.Mesh>(null!);
+  
   useFrame(({ clock }) => {
     if (mesh.current) {
       mesh.current.rotation.z = clock.getElapsedTime() * speed;
     }
   });
+  
   if (!texture) return null;
+  
   return (
     <mesh ref={mesh} scale={scale} position={position}>
       <planeGeometry />
@@ -35,11 +40,13 @@ const ParallaxLayer = ({ texture, speed = 0.01, scale = [30, 30, 1], position = 
 
 const ParticleField = ({ count = 3000, size = 0.01 }) => {
   const mesh = useRef<THREE.Points>(null!);
+  
   useFrame(({ clock }) => {
     if (mesh.current) {
       mesh.current.rotation.y = clock.getElapsedTime() * 0.03;
     }
   });
+  
   useEffect(() => {
     if (mesh.current) {
       const particles = mesh.current.geometry as THREE.BufferGeometry;
@@ -56,6 +63,7 @@ const ParticleField = ({ count = 3000, size = 0.01 }) => {
       particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     }
   }, [count]);
+  
   return (
     <points ref={mesh}>
       <bufferGeometry />
@@ -74,15 +82,19 @@ const ParticleField = ({ count = 3000, size = 0.01 }) => {
 const ParallaxBackground = ({ mouseMove = true }) => {
   const groupRef = useRef<THREE.Group>(null!);
   const { camera, size } = useThree();
-  // Load nebula texture (never conditionally)
-  let nebulaTexture: THREE.Texture | null = null;
-  try {
-    nebulaTexture = useTexture('/images/nebula.png');
-  } catch {
-    nebulaTexture = null;
-  }
-  // Optionally, add more parallax layers with different images
-  // const anotherTexture = useTexture('/images/another.png');
+  const [nebulaTexture, setNebulaTexture] = useState<THREE.Texture | null>(null);
+  
+  // Load texture safely
+  const texture = useLoader(THREE.TextureLoader, '/images/nebula.png', undefined, (error) => {
+    console.log('Could not load nebula texture, continuing without it');
+    setNebulaTexture(null);
+  });
+  
+  useEffect(() => {
+    if (texture) {
+      setNebulaTexture(texture);
+    }
+  }, [texture]);
 
   // Mouse-based camera movement for immersive parallax
   useEffect(() => {
@@ -102,13 +114,14 @@ const ParallaxBackground = ({ mouseMove = true }) => {
     <group ref={groupRef}>
       {/* Deep star field */}
       <Stars radius={120} depth={60} count={7000} factor={4} saturation={0} fade speed={1.2} />
+      
       {/* Parallax nebula layer (if texture loaded) */}
       {nebulaTexture && (
         <ParallaxLayer texture={nebulaTexture} speed={0.02} scale={[40, 40, 1]} position={[0, 0, -20]} opacity={0.35} />
       )}
+      
       {/* Particle field for extra depth */}
       <ParticleField count={2000} />
-      {/* Add more ParallaxLayer components for extra depth if desired */}
     </group>
   );
 };
