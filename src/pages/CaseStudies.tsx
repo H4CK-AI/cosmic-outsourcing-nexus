@@ -1,7 +1,8 @@
-
 import { useRef, useState } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import LiquidBackground from '@/components/LiquidBackground';
+import AnimatedBackground from '@/components/AnimatedBackground';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -124,13 +125,14 @@ const CaseStudyCard = ({ caseStudy }: { caseStudy: CaseStudy }) => {
       transition={{ duration: 0.4 }}
       className="h-full"
     >
-      <Card className="overflow-hidden border-cosmic-accent/20 h-full bg-cosmic-subtle/30 backdrop-blur-sm hover:border-cosmic-accent/40 transition-all duration-300">
+      <Card className="overflow-hidden border-cosmic-accent/20 h-full bg-cosmic-subtle/30 backdrop-blur-sm hover:border-cosmic-accent/40 transition-all duration-300 card-3d group">
         <div className="relative h-48 overflow-hidden">
           <img 
             src={caseStudy.image} 
             alt={caseStudy.title} 
             className="w-full h-full object-cover transition-transform duration-500 hover:scale-110" 
           />
+          <div className="shimmer absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           <div className="absolute top-2 right-2">
             <Badge className="bg-cosmic-accent/80 hover:bg-cosmic-accent">{caseStudy.industry}</Badge>
           </div>
@@ -205,149 +207,147 @@ const CaseStudies = () => {
   };
   
   return (
-    <div className="min-h-screen bg-cosmic-dark">
-      <Header />
-      
-      <main className="pt-20">
-        {/* Hero Section */}
-        <section className="relative py-20 overflow-hidden">
-          <div className="absolute inset-0 z-0">
-            <div className="h-full w-full bg-gradient-to-b from-cosmic-accent/10 via-transparent to-transparent"></div>
-            <div className="star-field absolute inset-0 opacity-40"></div>
-          </div>
+    <LiquidBackground>
+      <AnimatedBackground />
+      <div className="min-h-screen relative z-10">
+        <Header />
+        
+        <main className="pt-20">
+          {/* Hero Section */}
+          <section className="relative py-20 overflow-hidden">
+            <div className="container mx-auto px-4 relative z-10">
+              <motion.div
+                initial={{ y: -30, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.8 }}
+                className="text-center max-w-3xl mx-auto"
+              >
+                <h1 className="text-5xl md:text-7xl font-bold cosmic-text-gradient mb-6 float-animation">Success Stories</h1>
+                <p className="text-xl text-white/70 mb-8">
+                  Explore how we've helped businesses across industries overcome challenges and achieve remarkable results
+                </p>
+                
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search case studies..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full px-4 py-3 pl-10 bg-cosmic-subtle/30 backdrop-blur-sm border border-cosmic-accent/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-cosmic-accent/50 text-white"
+                  />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-white/50"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+              </motion.div>
+            </div>
+          </section>
           
-          <div className="container mx-auto px-4 relative z-10">
-            <motion.div
-              initial={{ y: -30, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.8 }}
-              className="text-center max-w-3xl mx-auto"
-            >
-              <h1 className="text-5xl md:text-7xl font-bold cosmic-text-gradient mb-6">Success Stories</h1>
-              <p className="text-xl text-white/70 mb-8">
-                Explore how we've helped businesses across industries overcome challenges and achieve remarkable results
-              </p>
-              
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search case studies..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-4 py-3 pl-10 bg-cosmic-subtle/30 backdrop-blur-sm border border-cosmic-accent/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-cosmic-accent/50 text-white"
-                />
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-white/50"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </div>
-            </motion.div>
-          </div>
-        </section>
-        
-        {/* Filters Section */}
-        <section className="py-8">
-          <div className="container mx-auto px-4">
-            <div className="mb-8">
-              <h2 className="text-xl font-semibold mb-4">Filter by Industry</h2>
-              <div className="flex flex-wrap gap-2">
-                {industries.map((industry, i) => (
-                  <motion.button
-                    key={industry}
-                    onClick={() => setSelectedIndustry(industry)}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.3, delay: i * 0.05 }}
-                    className={`px-4 py-2 rounded-full text-sm transition-all duration-300 ${
-                      selectedIndustry === industry 
-                        ? "bg-cosmic-accent text-white" 
-                        : "bg-cosmic-subtle/30 border border-cosmic-accent/20 text-white/70 hover:bg-cosmic-accent/20"
-                    }`}
-                  >
-                    {industry}
-                  </motion.button>
-                ))}
-              </div>
-            </div>
-            
-            <div>
-              <h2 className="text-xl font-semibold mb-4">Filter by Tags</h2>
-              <div className="flex flex-wrap gap-2">
-                {tags.slice(0, 12).map((tag, i) => (
-                  <motion.button
-                    key={tag}
-                    onClick={() => toggleTag(tag)}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.3, delay: 0.3 + i * 0.05 }}
-                    className={`px-3 py-1 rounded-full text-xs transition-all duration-300 ${
-                      selectedTags.includes(tag)
-                        ? "bg-cosmic-highlight text-cosmic-dark"
-                        : "bg-transparent border border-cosmic-highlight/30 text-cosmic-highlight hover:bg-cosmic-highlight/10"
-                    }`}
-                  >
-                    {tag}
-                  </motion.button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-        
-        {/* Case Studies Grid */}
-        <section className="py-12" ref={containerRef}>
-          <div className="container mx-auto px-4">
-            <AnimatePresence>
-              {filteredCaseStudies.length === 0 ? (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="text-center py-16"
-                >
-                  <h3 className="text-2xl font-semibold mb-2">No matching case studies</h3>
-                  <p className="text-white/70">Try adjusting your filters or search criteria</p>
-                </motion.div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {filteredCaseStudies.map((study) => (
-                    <CaseStudyCard key={study.id} caseStudy={study} />
+          {/* Filters Section */}
+          <section className="py-8">
+            <div className="container mx-auto px-4">
+              <div className="mb-8">
+                <h2 className="text-xl font-semibold mb-4">Filter by Industry</h2>
+                <div className="flex flex-wrap gap-2">
+                  {industries.map((industry, i) => (
+                    <motion.button
+                      key={industry}
+                      onClick={() => setSelectedIndustry(industry)}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.3, delay: i * 0.05 }}
+                      className={`px-4 py-2 rounded-full text-sm transition-all duration-300 ${
+                        selectedIndustry === industry 
+                          ? "bg-cosmic-accent text-white" 
+                          : "bg-cosmic-subtle/30 border border-cosmic-accent/20 text-white/70 hover:bg-cosmic-accent/20"
+                      }`}
+                    >
+                      {industry}
+                    </motion.button>
                   ))}
                 </div>
-              )}
-            </AnimatePresence>
-          </div>
-        </section>
+              </div>
+              
+              <div>
+                <h2 className="text-xl font-semibold mb-4">Filter by Tags</h2>
+                <div className="flex flex-wrap gap-2">
+                  {tags.slice(0, 12).map((tag, i) => (
+                    <motion.button
+                      key={tag}
+                      onClick={() => toggleTag(tag)}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.3, delay: 0.3 + i * 0.05 }}
+                      className={`px-3 py-1 rounded-full text-xs transition-all duration-300 ${
+                        selectedTags.includes(tag)
+                          ? "bg-cosmic-highlight text-cosmic-dark"
+                          : "bg-transparent border border-cosmic-highlight/30 text-cosmic-highlight hover:bg-cosmic-highlight/10"
+                      }`}
+                    >
+                      {tag}
+                    </motion.button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+          
+          {/* Case Studies Grid */}
+          <section className="py-12" ref={containerRef}>
+            <div className="container mx-auto px-4">
+              <AnimatePresence>
+                {filteredCaseStudies.length === 0 ? (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="text-center py-16"
+                  >
+                    <h3 className="text-2xl font-semibold mb-2">No matching case studies</h3>
+                    <p className="text-white/70">Try adjusting your filters or search criteria</p>
+                  </motion.div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {filteredCaseStudies.map((study) => (
+                      <CaseStudyCard key={study.id} caseStudy={study} />
+                    ))}
+                  </div>
+                )}
+              </AnimatePresence>
+            </div>
+          </section>
+          
+          {/* CTA Section */}
+          <section className="py-20">
+            <div className="container mx-auto px-4">
+              <motion.div
+                initial={{ y: 30, opacity: 0 }}
+                whileInView={{ y: 0, opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8 }}
+                className="bg-gradient-to-r from-cosmic-subtle to-cosmic-accent/30 backdrop-blur-md border border-cosmic-accent/20 rounded-xl p-8 md:p-12 text-center"
+              >
+                <h2 className="text-3xl md:text-4xl font-bold mb-6 cosmic-text-gradient">Ready to Be Our Next Success Story?</h2>
+                <p className="text-white/70 max-w-2xl mx-auto mb-8">
+                  Partner with Nexvora to transform your business operations and achieve extraordinary results. Our team of experts is ready to help you navigate the challenges of modern business.
+                </p>
+                <Link to="/contact">
+                  <Button className="cosmic-button text-lg px-8">Contact Us Today</Button>
+                </Link>
+              </motion.div>
+            </div>
+          </section>
+        </main>
         
-        {/* CTA Section */}
-        <section className="py-20">
-          <div className="container mx-auto px-4">
-            <motion.div
-              initial={{ y: 30, opacity: 0 }}
-              whileInView={{ y: 0, opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-              className="bg-gradient-to-r from-cosmic-subtle to-cosmic-accent/30 backdrop-blur-md border border-cosmic-accent/20 rounded-xl p-8 md:p-12 text-center"
-            >
-              <h2 className="text-3xl md:text-4xl font-bold mb-6 cosmic-text-gradient">Ready to Be Our Next Success Story?</h2>
-              <p className="text-white/70 max-w-2xl mx-auto mb-8">
-                Partner with Nexvora to transform your business operations and achieve extraordinary results. Our team of experts is ready to help you navigate the challenges of modern business.
-              </p>
-              <Link to="/contact">
-                <Button className="cosmic-button text-lg px-8">Contact Us Today</Button>
-              </Link>
-            </motion.div>
-          </div>
-        </section>
-      </main>
-      
-      <Footer />
-    </div>
+        <Footer />
+      </div>
+    </LiquidBackground>
   );
 };
 

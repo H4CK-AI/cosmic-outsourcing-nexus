@@ -2,6 +2,8 @@
 import { useRef, useEffect } from 'react'
 import Header from '@/components/Header'
 import ThreeDScene from '@/components/ThreeDScene'
+import LiquidBackground from '@/components/LiquidBackground'
+import AnimatedBackground from '@/components/AnimatedBackground'
 import ServiceSection from '@/components/ServiceSection'
 import BenefitsSection from '@/components/BenefitsSection'
 import CallToAction from '@/components/CallToAction'
@@ -25,27 +27,30 @@ const Index = () => {
   }, [])
   
   return (
-    <div ref={scrollContainerRef} className="scene-container bg-cosmic-dark">
-      {/* Fixed Header */}
-      <Header />
-      
-      {/* Hero Section with 3D Scene */}
-      <section id="hero" className="h-screen">
-        <ThreeDScene />
-      </section>
-      
-      {/* Services Section */}
-      <ServiceSection />
-      
-      {/* Benefits Section */}
-      <BenefitsSection />
-      
-      {/* Call To Action */}
-      <CallToAction />
-      
-      {/* Footer */}
-      <Footer />
-    </div>
+    <LiquidBackground>
+      <AnimatedBackground />
+      <div ref={scrollContainerRef} className="scene-container bg-cosmic-dark relative z-10">
+        {/* Fixed Header */}
+        <Header />
+        
+        {/* Hero Section with 3D Scene */}
+        <section id="hero" className="h-screen relative">
+          <ThreeDScene />
+        </section>
+        
+        {/* Services Section */}
+        <ServiceSection />
+        
+        {/* Benefits Section */}
+        <BenefitsSection />
+        
+        {/* Call To Action */}
+        <CallToAction />
+        
+        {/* Footer */}
+        <Footer />
+      </div>
+    </LiquidBackground>
   )
 }
 
