@@ -4,7 +4,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import gsap from 'gsap'
 
-// Physics-based floating object with mouse interaction
+// Simple floating object with smooth physics
 const SpaceObject = ({ 
   position = [0, 0, 0], 
   color = "#9b87f5", 
@@ -20,33 +20,32 @@ const SpaceObject = ({
   
   useFrame((state) => {
     if (meshRef.current) {
-      // Physics-based floating with mouse influence
       const time = state.clock.elapsedTime
       
       // Mouse influence
-      const mouseInfluence = 2
+      const mouseInfluence = 1.5
       const targetX = position[0] + mousePosition.x * mouseInfluence
       const targetY = position[1] + mousePosition.y * mouseInfluence
       
-      // Smooth physics-based movement
-      velocity.x += (targetX - meshRef.current.position.x) * 0.02
-      velocity.y += (targetY - meshRef.current.position.y) * 0.02
-      velocity.z += (Math.sin(time * 0.5) * 0.3 - meshRef.current.position.z + position[2]) * 0.01
+      // Smooth movement
+      velocity.x += (targetX - meshRef.current.position.x) * 0.015
+      velocity.y += (targetY - meshRef.current.position.y) * 0.015
+      velocity.z += (Math.sin(time * 0.4) * 0.2 - meshRef.current.position.z + position[2]) * 0.008
       
       // Apply damping
-      velocity.x *= 0.95
-      velocity.y *= 0.95
-      velocity.z *= 0.95
+      velocity.x *= 0.96
+      velocity.y *= 0.96
+      velocity.z *= 0.96
       
       // Update position
       meshRef.current.position.x += velocity.x
       meshRef.current.position.y += velocity.y
       meshRef.current.position.z += velocity.z
       
-      // Orbital rotation with physics
-      meshRef.current.rotation.x += 0.01 + velocity.x * 0.1
-      meshRef.current.rotation.y += 0.015 + velocity.y * 0.1
-      meshRef.current.rotation.z = Math.sin(time * 0.5) * 0.1
+      // Smooth rotation
+      meshRef.current.rotation.x += 0.008 + velocity.x * 0.05
+      meshRef.current.rotation.y += 0.012 + velocity.y * 0.05
+      meshRef.current.rotation.z = Math.sin(time * 0.3) * 0.05
     }
   })
 
@@ -71,11 +70,11 @@ const SpaceObject = ({
     new THREE.MeshStandardMaterial({
       color: color,
       roughness: 0.2,
-      metalness: 0.9,
+      metalness: 0.8,
       emissive: color,
-      emissiveIntensity: hovered ? 0.6 : 0.3,
+      emissiveIntensity: hovered ? 0.5 : 0.2,
       transparent: true,
-      opacity: 0.9
+      opacity: 0.85
     }), [color, hovered])
 
   const textTexture = React.useMemo(() => {
@@ -87,7 +86,7 @@ const SpaceObject = ({
     
     if (context) {
       context.fillStyle = 'rgba(255, 255, 255, 0.9)'
-      context.font = 'bold 42px Arial'
+      context.font = 'bold 36px Arial'
       context.textAlign = 'center'
       context.fillText(text, 256, 64)
     }
@@ -108,21 +107,21 @@ const SpaceObject = ({
       />
       
       {text && textTexture && (
-        <group ref={textRef} position={[0, size + 1, 0]}>
+        <group ref={textRef} position={[0, size + 0.8, 0]}>
           <mesh>
-            <planeGeometry args={[2.5, 0.6]} />
+            <planeGeometry args={[2.2, 0.5]} />
             <meshBasicMaterial map={textTexture} transparent />
           </mesh>
         </group>
       )}
       
-      {/* Enhanced glow effect */}
-      <mesh position={[0, 0, 0]} scale={[1.8, 1.8, 1.8]}>
+      {/* Glow effect */}
+      <mesh position={[0, 0, 0]} scale={[1.6, 1.6, 1.6]}>
         <sphereGeometry args={[size, 16, 16]} />
         <meshBasicMaterial 
           color={color} 
           transparent 
-          opacity={hovered ? 0.2 : 0.08}
+          opacity={hovered ? 0.15 : 0.06}
           blending={THREE.AdditiveBlending}
         />
       </mesh>
@@ -130,69 +129,51 @@ const SpaceObject = ({
   )
 }
 
-// Dynamic orbital ring with physics
+// Orbital ring
 const OrbitalRing = ({ radius = 3, color = "#6e59a5", mousePosition = { x: 0, y: 0 } }) => {
   const ringRef = useRef<THREE.Mesh>(null!)
   
   useFrame(({ clock }) => {
     if (ringRef.current) {
-      // Physics-based rotation influenced by mouse
-      const mouseInfluence = mousePosition.x * 0.5 + mousePosition.y * 0.3
-      ringRef.current.rotation.y = clock.elapsedTime * 0.1 + mouseInfluence
-      ringRef.current.rotation.x = Math.sin(clock.elapsedTime * 0.3) * 0.1 + mousePosition.y * 0.2
+      const mouseInfluence = mousePosition.x * 0.3 + mousePosition.y * 0.2
+      ringRef.current.rotation.y = clock.elapsedTime * 0.08 + mouseInfluence
+      ringRef.current.rotation.x = Math.sin(clock.elapsedTime * 0.2) * 0.08 + mousePosition.y * 0.15
     }
   })
 
-  const geometry = React.useMemo(() => 
-    new THREE.RingGeometry(radius - 0.05, radius + 0.05, 128), [radius])
-
-  const material = React.useMemo(() => 
-    new THREE.MeshBasicMaterial({ 
-      color, 
-      transparent: true, 
-      opacity: 0.4, 
-      side: THREE.DoubleSide 
-    }), [color])
-
   return (
-    <mesh ref={ringRef} rotation={[Math.PI / 2, 0, 0]} geometry={geometry} material={material} />
+    <mesh ref={ringRef} rotation={[Math.PI / 2, 0, 0]}>
+      <ringGeometry args={[radius - 0.04, radius + 0.04, 128]} />
+      <meshBasicMaterial 
+        color={color} 
+        transparent 
+        opacity={0.35} 
+        side={THREE.DoubleSide} 
+      />
+    </mesh>
   )
 }
 
-// Central core with physics
+// Central core
 const CentralCore = ({ mousePosition = { x: 0, y: 0 } }) => {
   const coreRef = useRef<THREE.Mesh>(null!)
   const glowRef = useRef<THREE.Mesh>(null!)
   
   useFrame(({ clock }) => {
     if (coreRef.current) {
-      // Gentle physics-based movement
       const time = clock.elapsedTime
-      coreRef.current.rotation.y = time * 0.15 + mousePosition.x * 0.3
-      coreRef.current.rotation.x = Math.sin(time * 0.2) * 0.1 + mousePosition.y * 0.2
+      coreRef.current.rotation.y = time * 0.12 + mousePosition.x * 0.2
+      coreRef.current.rotation.x = Math.sin(time * 0.15) * 0.08 + mousePosition.y * 0.15
       
-      // Pulsing effect
-      const scale = 1 + Math.sin(time * 2) * 0.05
+      const scale = 1 + Math.sin(time * 1.5) * 0.03
       coreRef.current.scale.setScalar(scale)
     }
     
     if (glowRef.current) {
-      const glowScale = 1.2 + Math.sin(clock.elapsedTime * 1.5) * 0.1
+      const glowScale = 1.1 + Math.sin(clock.elapsedTime * 1.2) * 0.08
       glowRef.current.scale.setScalar(glowScale)
     }
   })
-
-  const geometry = React.useMemo(() => new THREE.IcosahedronGeometry(1.2, 2), [])
-  const material = React.useMemo(() => 
-    new THREE.MeshStandardMaterial({
-      color: "#ffd93d",
-      roughness: 0.1,
-      metalness: 0.9,
-      emissive: "#ffd93d",
-      emissiveIntensity: 0.4,
-      transparent: true,
-      opacity: 0.95
-    }), [])
 
   const textTexture = React.useMemo(() => {
     const canvas = document.createElement('canvas')
@@ -202,7 +183,7 @@ const CentralCore = ({ mousePosition = { x: 0, y: 0 } }) => {
     
     if (context) {
       context.fillStyle = 'rgba(255, 255, 255, 0.95)'
-      context.font = 'bold 52px Arial'
+      context.font = 'bold 48px Arial'
       context.textAlign = 'center'
       context.fillText('NEXVORA', 256, 74)
     }
@@ -212,40 +193,51 @@ const CentralCore = ({ mousePosition = { x: 0, y: 0 } }) => {
 
   return (
     <group>
-      <mesh ref={coreRef} geometry={geometry} material={material} castShadow />
+      <mesh ref={coreRef} castShadow>
+        <icosahedronGeometry args={[1, 2]} />
+        <meshStandardMaterial
+          color="#ffd93d"
+          roughness={0.1}
+          metalness={0.8}
+          emissive="#ffd93d"
+          emissiveIntensity={0.3}
+          transparent
+          opacity={0.9}
+        />
+      </mesh>
       
-      <mesh ref={glowRef} scale={[1.5, 1.5, 1.5]}>
-        <sphereGeometry args={[1.2, 32, 32]} />
+      <mesh ref={glowRef} scale={[1.4, 1.4, 1.4]}>
+        <sphereGeometry args={[1, 32, 32]} />
         <meshBasicMaterial
           color="#ffd93d"
           transparent
-          opacity={0.15}
+          opacity={0.12}
           blending={THREE.AdditiveBlending}
         />
       </mesh>
       
-      <mesh position={[0, 2.8, 0]}>
-        <planeGeometry args={[4, 1]} />
+      <mesh position={[0, 2.5, 0]}>
+        <planeGeometry args={[3.5, 0.8]} />
         <meshBasicMaterial map={textTexture} transparent />
       </mesh>
     </group>
   )
 }
 
-// Enhanced starfield with physics
+// Enhanced starfield
 const StarField = ({ mousePosition = { x: 0, y: 0 } }) => {
   const starsRef = useRef<THREE.Points>(null!)
   
   const { positions, colors } = React.useMemo(() => {
-    const positions = new Float32Array(8000 * 3)
-    const colors = new Float32Array(8000 * 3)
+    const positions = new Float32Array(6000 * 3)
+    const colors = new Float32Array(6000 * 3)
     
-    for (let i = 0; i < 8000; i++) {
-      positions[i * 3] = (Math.random() - 0.5) * 2000
-      positions[i * 3 + 1] = (Math.random() - 0.5) * 2000
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 2000
+    for (let i = 0; i < 6000; i++) {
+      positions[i * 3] = (Math.random() - 0.5) * 1500
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 1500
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 1500
       
-      const gray = Math.random() * 0.4 + 0.6
+      const gray = Math.random() * 0.3 + 0.7
       colors[i * 3] = gray
       colors[i * 3 + 1] = gray
       colors[i * 3 + 2] = gray
@@ -256,8 +248,8 @@ const StarField = ({ mousePosition = { x: 0, y: 0 } }) => {
 
   useFrame(({ clock }) => {
     if (starsRef.current) {
-      starsRef.current.rotation.x = clock.elapsedTime * 0.005 + mousePosition.y * 0.02
-      starsRef.current.rotation.y = clock.elapsedTime * 0.01 + mousePosition.x * 0.02
+      starsRef.current.rotation.x = clock.elapsedTime * 0.003 + mousePosition.y * 0.015
+      starsRef.current.rotation.y = clock.elapsedTime * 0.008 + mousePosition.x * 0.015
     }
   })
   
@@ -266,23 +258,23 @@ const StarField = ({ mousePosition = { x: 0, y: 0 } }) => {
       <bufferGeometry>
         <bufferAttribute
           attach="attributes-position"
-          count={8000}
+          count={6000}
           array={positions}
           itemSize={3}
         />
         <bufferAttribute
           attach="attributes-color"
-          count={8000}
+          count={6000}
           array={colors}
           itemSize={3}
         />
       </bufferGeometry>
-      <pointsMaterial size={1.5} vertexColors transparent opacity={0.8} />
+      <pointsMaterial size={1.2} vertexColors transparent opacity={0.7} />
     </points>
   )
 }
 
-// Mouse controller for physics interaction
+// Mouse controller
 const MouseController = ({ setMousePosition }) => {
   const { size } = useThree()
   
@@ -290,7 +282,7 @@ const MouseController = ({ setMousePosition }) => {
     const handleMouseMove = (event: MouseEvent) => {
       const x = (event.clientX / size.width) * 2 - 1
       const y = -(event.clientY / size.height) * 2 + 1
-      setMousePosition({ x: x * 0.5, y: y * 0.5 })
+      setMousePosition({ x: x * 0.4, y: y * 0.4 })
     }
     
     window.addEventListener('mousemove', handleMouseMove)
@@ -300,7 +292,7 @@ const MouseController = ({ setMousePosition }) => {
   return null
 }
 
-// Main scene with physics
+// Main scene
 const Scene = () => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   
@@ -323,14 +315,14 @@ const Scene = () => {
   
   return (
     <>
-      <ambientLight intensity={0.4} color="#ffffff" />
-      <pointLight position={[15, 15, 15]} intensity={2.5} color={colors.accent1} />
-      <pointLight position={[-15, -15, -15]} intensity={1.8} color={colors.accent2} />
+      <ambientLight intensity={0.35} color="#ffffff" />
+      <pointLight position={[12, 12, 12]} intensity={2} color={colors.accent1} />
+      <pointLight position={[-12, -12, -12]} intensity={1.5} color={colors.accent2} />
       <spotLight 
-        position={[0, 25, 0]} 
-        angle={0.25} 
+        position={[0, 20, 0]} 
+        angle={0.2} 
         penumbra={1} 
-        intensity={2.5} 
+        intensity={2} 
         color={colors.center}
         castShadow
       />
@@ -339,23 +331,23 @@ const Scene = () => {
       <StarField mousePosition={mousePosition} />
       <CentralCore mousePosition={mousePosition} />
       
-      {/* Dynamic orbital rings */}
-      <OrbitalRing radius={5} color={colors.bpm} mousePosition={mousePosition} />
-      <OrbitalRing radius={7.5} color={colors.lpo} mousePosition={mousePosition} />
-      <OrbitalRing radius={10} color={colors.it} mousePosition={mousePosition} />
+      {/* Orbital rings */}
+      <OrbitalRing radius={4.5} color={colors.bpm} mousePosition={mousePosition} />
+      <OrbitalRing radius={7} color={colors.lpo} mousePosition={mousePosition} />
+      <OrbitalRing radius={9.5} color={colors.it} mousePosition={mousePosition} />
       
       {/* BPM Services */}
       {services.bpm.map((service, index) => {
         const angle = (index / services.bpm.length) * Math.PI * 2
-        const radius = 5
+        const radius = 4.5
         return (
           <SpaceObject
             key={service}
-            position={[Math.cos(angle) * radius, Math.sin(angle * 0.5) * 1.5, Math.sin(angle) * radius]}
+            position={[Math.cos(angle) * radius, Math.sin(angle * 0.4) * 1.2, Math.sin(angle) * radius]}
             color={colors.bpm}
             text={service}
             shape={shapes[index % shapes.length]}
-            size={0.7}
+            size={0.6}
             mousePosition={mousePosition}
           />
         )
@@ -363,16 +355,16 @@ const Scene = () => {
       
       {/* LPO Services */}
       {services.lpo.map((service, index) => {
-        const angle = (index / services.lpo.length) * Math.PI * 2 + Math.PI * 0.3
-        const radius = 7.5
+        const angle = (index / services.lpo.length) * Math.PI * 2 + Math.PI * 0.25
+        const radius = 7
         return (
           <SpaceObject
             key={service}
-            position={[Math.cos(angle) * radius, Math.sin(angle * 0.7) * 2, Math.sin(angle) * radius]}
+            position={[Math.cos(angle) * radius, Math.sin(angle * 0.6) * 1.8, Math.sin(angle) * radius]}
             color={colors.lpo}
             text={service}
             shape={shapes[(index + 2) % shapes.length]}
-            size={0.6}
+            size={0.55}
             mousePosition={mousePosition}
           />
         )
@@ -380,22 +372,22 @@ const Scene = () => {
       
       {/* IT Services */}
       {services.it.map((service, index) => {
-        const angle = (index / services.it.length) * Math.PI * 2 + Math.PI * 0.6
-        const radius = 10
+        const angle = (index / services.it.length) * Math.PI * 2 + Math.PI * 0.5
+        const radius = 9.5
         return (
           <SpaceObject
             key={service}
-            position={[Math.cos(angle) * radius, Math.sin(angle * 0.3) * 2.5, Math.sin(angle) * radius]}
+            position={[Math.cos(angle) * radius, Math.sin(angle * 0.25) * 2.2, Math.sin(angle) * radius]}
             color={colors.it}
             text={service}
             shape={shapes[(index + 4) % shapes.length]}
-            size={0.8}
+            size={0.7}
             mousePosition={mousePosition}
           />
         )
       })}
       
-      <fog attach="fog" args={['#0a0a1a', 15, 60]} />
+      <fog attach="fog" args={['#0a0a1a', 12, 50]} />
     </>
   )
 }
@@ -403,9 +395,9 @@ const Scene = () => {
 const LoadingFallback = () => (
   <div className="h-full w-full flex items-center justify-center bg-cosmic-dark">
     <div className="text-white text-center p-8">
-      <div className="animate-spin w-16 h-16 border-4 border-cosmic-accent border-t-transparent rounded-full mx-auto mb-4"></div>
-      <h2 className="text-2xl mb-4 cosmic-text-gradient">Loading Universe...</h2>
-      <p className="text-white/60">Initializing physics engine...</p>
+      <div className="animate-spin w-12 h-12 border-4 border-cosmic-accent border-t-transparent rounded-full mx-auto mb-4"></div>
+      <h2 className="text-xl mb-2 cosmic-text-gradient">Loading Universe...</h2>
+      <p className="text-white/60">Initializing...</p>
     </div>
   </div>
 )
@@ -425,10 +417,10 @@ class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasErr
       return (
         <div className="h-full w-full flex items-center justify-center bg-cosmic-dark">
           <div className="text-white text-center p-8">
-            <h2 className="text-2xl mb-4 cosmic-text-gradient">3D Universe Loading...</h2>
-            <p className="text-white/60">Physics engine initializing...</p>
+            <h2 className="text-xl mb-2 cosmic-text-gradient">Loading 3D Scene...</h2>
+            <p className="text-white/60">Please wait...</p>
             <button 
-              className="mt-6 px-6 py-3 bg-cosmic-accent rounded-lg hover:bg-cosmic-highlight transition-colors"
+              className="mt-4 px-4 py-2 bg-cosmic-accent rounded hover:bg-cosmic-highlight transition-colors"
               onClick={() => this.setState({ hasError: false })}
             >
               Retry
@@ -445,8 +437,7 @@ class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasErr
 const ThreeDScene = () => {
   return (
     <div className="h-screen w-full relative">
-      {/* Make Canvas non-blocking for scroll */}
-      <div className="absolute inset-0 pointer-events-none">
+      <div className="absolute inset-0">
         <Canvas 
           shadows 
           dpr={[1, 2]} 
@@ -455,8 +446,7 @@ const ThreeDScene = () => {
             alpha: true,
             powerPreference: "high-performance"
           }}
-          camera={{ position: [0, 5, 15], fov: 75 }}
-          style={{ pointerEvents: 'auto' }}
+          camera={{ position: [0, 4, 12], fov: 75 }}
         >
           <ErrorBoundary>
             <Suspense fallback={null}>

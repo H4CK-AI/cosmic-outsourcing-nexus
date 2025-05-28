@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import MotionGraphics from '@/components/MotionGraphics';
-import Enhanced3DBackground from '@/components/Enhanced3DBackground';
+import AnimatedBackground from '@/components/AnimatedBackground';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -75,7 +75,7 @@ const Services = () => {
   return (
     <div className="min-h-screen relative">
       <MotionGraphics />
-      <Enhanced3DBackground />
+      <AnimatedBackground />
       
       <div className="relative z-10">
         <Header />
