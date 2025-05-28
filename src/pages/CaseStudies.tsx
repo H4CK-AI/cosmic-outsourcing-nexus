@@ -1,8 +1,9 @@
+
 import { useRef, useState } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import MotionGraphics from '@/components/MotionGraphics';
-import EnhancedAnimatedBackground from '@/components/EnhancedAnimatedBackground';
+import AnimatedBackground from '@/components/AnimatedBackground';
 import ImagePlaceholder from '@/components/ImagePlaceholder';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Badge } from "@/components/ui/badge";
@@ -210,7 +211,7 @@ const CaseStudies = () => {
   return (
     <div className="min-h-screen relative">
       <MotionGraphics />
-      <EnhancedAnimatedBackground />
+      <AnimatedBackground />
       
       <div className="relative z-10">
         <Header />
