@@ -1,14 +1,14 @@
 
 import React, { useRef, useState, useEffect, Suspense } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { OrbitControls, Stars, Text, Float } from '@react-three/drei'
+import { OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
 import gsap from 'gsap'
 
 // Enhanced floating sphere component with premium animations
 const ServiceNode = ({ position = [0, 0, 0], color = "#9b87f5", size = 0.5, text = "", hover = 0, shape = "sphere" }) => {
   const meshRef = useRef<THREE.Mesh>(null!)
-  const textRef = useRef<THREE.Mesh>(null!)
+  const textRef = useRef<THREE.Group>(null!)
   const [hovered, setHovered] = useState(false)
   
   useEffect(() => {
@@ -38,161 +38,144 @@ const ServiceNode = ({ position = [0, 0, 0], color = "#9b87f5", size = 0.5, text
     }
   })
 
-  const renderShape = () => {
-    const material = (
-      <meshStandardMaterial 
-        color={color} 
-        roughness={0.2} 
-        metalness={0.9}
-        emissive={color}
-        emissiveIntensity={hovered ? 0.6 : 0.2}
-        transparent
-        opacity={0.9}
-      />
-    )
-
+  const geometry = React.useMemo(() => {
     switch (shape) {
       case 'box':
-        return (
-          <mesh 
-            ref={meshRef}
-            onPointerOver={() => setHovered(true)}
-            onPointerOut={() => setHovered(false)}
-            castShadow
-            receiveShadow
-          >
-            <boxGeometry args={[size, size, size]} />
-            {material}
-          </mesh>
-        )
+        return new THREE.BoxGeometry(size, size, size)
       case 'torus':
-        return (
-          <mesh 
-            ref={meshRef}
-            onPointerOver={() => setHovered(true)}
-            onPointerOut={() => setHovered(false)}
-            castShadow
-            receiveShadow
-          >
-            <torusGeometry args={[size, size * 0.4, 16, 100]} />
-            {material}
-          </mesh>
-        )
+        return new THREE.TorusGeometry(size, size * 0.4, 16, 100)
       default:
-        return (
-          <mesh 
-            ref={meshRef}
-            onPointerOver={() => setHovered(true)}
-            onPointerOut={() => setHovered(false)}
-            castShadow
-            receiveShadow
-          >
-            <sphereGeometry args={[size, 32, 32]} />
-            {material}
-          </mesh>
-        )
+        return new THREE.SphereGeometry(size, 32, 32)
     }
-  }
+  }, [shape, size])
+
+  const material = React.useMemo(() => 
+    new THREE.MeshStandardMaterial({
+      color: color,
+      roughness: 0.2,
+      metalness: 0.9,
+      emissive: color,
+      emissiveIntensity: hovered ? 0.6 : 0.2,
+      transparent: true,
+      opacity: 0.9
+    }), [color, hovered])
+
+  // Create text texture
+  const textTexture = React.useMemo(() => {
+    if (!text) return null
+    const canvas = document.createElement('canvas')
+    const context = canvas.getContext('2d')
+    canvas.width = 512
+    canvas.height = 128
+    
+    if (context) {
+      context.fillStyle = 'white'
+      context.font = '48px Arial'
+      context.textAlign = 'center'
+      context.fillText(text, 256, 64)
+    }
+    
+    return new THREE.CanvasTexture(canvas)
+  }, [text])
 
   return (
-    <Float speed={2} rotationIntensity={0.5} floatIntensity={2}>
-      <group position={[position[0], position[1], position[2]]}>
-        {renderShape()}
-        {text && (
-          <Text
-            ref={textRef}
-            position={[0, size + 0.8, 0]}
-            fontSize={0.25}
-            color="white"
-            anchorX="center"
-            anchorY="middle"
-            outlineWidth={0.02}
-            outlineColor="#000000"
-            material-transparent
-            material-opacity={0.95}
-          >
-            {text}
-          </Text>
-        )}
-        
-        {/* Enhanced glow effect */}
-        <mesh position={[0, 0, 0]} scale={[2, 2, 2]}>
-          <sphereGeometry args={[size, 16, 16]} />
-          <meshBasicMaterial 
-            color={color} 
-            transparent 
-            opacity={hovered ? 0.15 : 0.05}
-            blending={THREE.AdditiveBlending}
-          />
-        </mesh>
-      </group>
-    </Float>
+    <group position={[position[0], position[1], position[2]]}>
+      <mesh 
+        ref={meshRef}
+        onPointerOver={() => setHovered(true)}
+        onPointerOut={() => setHovered(false)}
+        castShadow
+        receiveShadow
+        geometry={geometry}
+        material={material}
+      />
+      
+      {text && textTexture && (
+        <group ref={textRef} position={[0, size + 0.8, 0]}>
+          <mesh>
+            <planeGeometry args={[2, 0.5]} />
+            <meshBasicMaterial map={textTexture} transparent />
+          </mesh>
+        </group>
+      )}
+      
+      {/* Enhanced glow effect */}
+      <mesh position={[0, 0, 0]} scale={[2, 2, 2]}>
+        <sphereGeometry args={[size, 16, 16]} />
+        <meshBasicMaterial 
+          color={color} 
+          transparent 
+          opacity={hovered ? 0.15 : 0.05}
+          blending={THREE.AdditiveBlending}
+        />
+      </mesh>
+    </group>
   )
 }
 
 // Enhanced connection line with animation
 const ConnectionLine = ({ start, end, color = "#ffffff" }) => {
-  const ref = useRef<THREE.LineSegments>()
+  const ref = useRef<THREE.Line>()
+  
+  const points = React.useMemo(() => [
+    new THREE.Vector3(...start),
+    new THREE.Vector3(...end)
+  ], [start, end])
+
+  const geometry = React.useMemo(() => 
+    new THREE.BufferGeometry().setFromPoints(points), [points])
+
+  const material = React.useMemo(() => 
+    new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.3 }), [color])
   
   useFrame(({ clock }) => {
-    if (ref.current) {
+    if (ref.current && ref.current.material instanceof THREE.LineBasicMaterial) {
       const opacity = 0.3 + Math.sin(clock.elapsedTime * 2) * 0.2
-      if (ref.current.material instanceof THREE.LineBasicMaterial) {
-        ref.current.material.opacity = opacity
-      }
+      ref.current.material.opacity = opacity
     }
   })
   
-  useEffect(() => {
-    if (ref.current) {
-      const points = [
-        new THREE.Vector3(...start),
-        new THREE.Vector3(...end)
-      ]
-      const geometry = new THREE.BufferGeometry().setFromPoints(points)
-      ref.current.geometry = geometry
-    }
-  }, [start, end])
-  
-  return (
-    <lineSegments ref={ref}>
-      <bufferGeometry />
-      <lineBasicMaterial color={color} transparent opacity={0.3} />
-    </lineSegments>
-  )
+  return <line ref={ref} geometry={geometry} material={material} />
 }
 
 // Enhanced orbital path with glow
 const OrbitalPath = ({ radius = 3, color = "#6e59a5", segments = 128 }) => {
   const pathRef = useRef<THREE.Mesh>(null!)
   
+  const geometry = React.useMemo(() => 
+    new THREE.RingGeometry(radius - 0.02, radius + 0.02, segments), [radius, segments])
+
+  const material = React.useMemo(() => 
+    new THREE.MeshBasicMaterial({ 
+      color, 
+      transparent: true, 
+      opacity: 0.3, 
+      side: THREE.DoubleSide 
+    }), [color])
+
+  const glowGeometry = React.useMemo(() => 
+    new THREE.RingGeometry(radius - 0.1, radius + 0.1, segments), [radius, segments])
+
+  const glowMaterial = React.useMemo(() => 
+    new THREE.MeshBasicMaterial({
+      color,
+      transparent: true,
+      opacity: 0.1,
+      side: THREE.DoubleSide,
+      blending: THREE.AdditiveBlending
+    }), [color])
+  
   useFrame(({ clock }) => {
-    if (pathRef.current) {
+    if (pathRef.current && pathRef.current.material instanceof THREE.MeshBasicMaterial) {
       const intensity = 0.2 + Math.sin(clock.elapsedTime) * 0.1
-      if (pathRef.current.material instanceof THREE.MeshBasicMaterial) {
-        pathRef.current.material.opacity = intensity
-      }
+      pathRef.current.material.opacity = intensity
     }
   })
 
   return (
     <group>
-      <mesh ref={pathRef} rotation={[Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[radius - 0.02, radius + 0.02, segments]} />
-        <meshBasicMaterial color={color} transparent opacity={0.3} side={THREE.DoubleSide} />
-      </mesh>
-      
-      {/* Glow ring */}
-      <mesh rotation={[Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[radius - 0.1, radius + 0.1, segments]} />
-        <meshBasicMaterial 
-          color={color} 
-          transparent 
-          opacity={0.1} 
-          side={THREE.DoubleSide}
-          blending={THREE.AdditiveBlending}
-        />
-      </mesh>
+      <mesh ref={pathRef} rotation={[Math.PI / 2, 0, 0]} geometry={geometry} material={material} />
+      <mesh rotation={[Math.PI / 2, 0, 0]} geometry={glowGeometry} material={glowMaterial} />
     </group>
   )
 }
@@ -230,20 +213,98 @@ const ServiceOrbit = ({ radius = 3, speed = 0.5, height = 0, services = [], colo
   )
 }
 
-// Enhanced starfield with more depth
+// Enhanced starfield with more depth and grayscale
 const StarField = () => {
+  const starsRef = useRef<THREE.Points>(null!)
+  
+  const { positions, colors } = React.useMemo(() => {
+    const positions = new Float32Array(5000 * 3)
+    const colors = new Float32Array(5000 * 3)
+    
+    for (let i = 0; i < 5000; i++) {
+      positions[i * 3] = (Math.random() - 0.5) * 2000
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 2000
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 2000
+      
+      // Grayscale colors
+      const gray = Math.random() * 0.5 + 0.5
+      colors[i * 3] = gray
+      colors[i * 3 + 1] = gray
+      colors[i * 3 + 2] = gray
+    }
+    
+    return { positions, colors }
+  }, [])
+
+  useFrame(({ clock }) => {
+    if (starsRef.current) {
+      starsRef.current.rotation.x = clock.elapsedTime * 0.01
+      starsRef.current.rotation.y = clock.elapsedTime * 0.02
+    }
+  })
+  
   return (
-    <group>
-      <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={0.5} />
-      <Stars radius={200} depth={100} count={3000} factor={6} saturation={0.2} fade speed={0.3} />
-      <Stars radius={300} depth={150} count={2000} factor={8} saturation={0.4} fade speed={0.2} />
-    </group>
+    <points ref={starsRef}>
+      <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          count={5000}
+          array={positions}
+          itemSize={3}
+        />
+        <bufferAttribute
+          attach="attributes-color"
+          count={5000}
+          array={colors}
+          itemSize={3}
+        />
+      </bufferGeometry>
+      <pointsMaterial size={2} vertexColors transparent opacity={0.8} />
+    </points>
   )
 }
 
 // Enhanced central globe with better materials
 const CentralGlobe = () => {
   const globeRef = useRef<THREE.Mesh>(null!)
+  
+  const geometry = React.useMemo(() => new THREE.SphereGeometry(1.2, 64, 64), [])
+  const material = React.useMemo(() => 
+    new THREE.MeshStandardMaterial({
+      color: "#ffd93d",
+      roughness: 0.1,
+      metalness: 0.8,
+      emissive: "#ffd93d",
+      emissiveIntensity: 0.3,
+      transparent: true,
+      opacity: 0.9
+    }), [])
+
+  const glowGeometry = React.useMemo(() => new THREE.SphereGeometry(1.2, 32, 32), [])
+  const glowMaterial = React.useMemo(() => 
+    new THREE.MeshBasicMaterial({
+      color: "#ffd93d",
+      transparent: true,
+      opacity: 0.1,
+      blending: THREE.AdditiveBlending
+    }), [])
+
+  // Create text texture for NEXVORA
+  const textTexture = React.useMemo(() => {
+    const canvas = document.createElement('canvas')
+    const context = canvas.getContext('2d')
+    canvas.width = 512
+    canvas.height = 128
+    
+    if (context) {
+      context.fillStyle = 'white'
+      context.font = 'bold 48px Arial'
+      context.textAlign = 'center'
+      context.fillText('NEXVORA', 256, 64)
+    }
+    
+    return new THREE.CanvasTexture(canvas)
+  }, [])
   
   useFrame(({ clock }) => {
     if (globeRef.current) {
@@ -254,44 +315,14 @@ const CentralGlobe = () => {
   
   return (
     <group>
-      <mesh ref={globeRef}>
-        <sphereGeometry args={[1.2, 64, 64]} />
-        <meshStandardMaterial 
-          color="#ffd93d"
-          roughness={0.1}
-          metalness={0.8}
-          emissive="#ffd93d"
-          emissiveIntensity={0.3}
-          transparent
-          opacity={0.9}
-        />
-      </mesh>
-      
-      {/* Outer glow sphere */}
-      <mesh scale={[1.5, 1.5, 1.5]}>
-        <sphereGeometry args={[1.2, 32, 32]} />
-        <meshBasicMaterial 
-          color="#ffd93d"
-          transparent 
-          opacity={0.1}
-          blending={THREE.AdditiveBlending}
-        />
-      </mesh>
+      <mesh ref={globeRef} geometry={geometry} material={material} />
+      <mesh scale={[1.5, 1.5, 1.5]} geometry={glowGeometry} material={glowMaterial} />
       
       {/* Text label */}
-      <Text
-        position={[0, 2.5, 0]}
-        fontSize={0.4}
-        color="white"
-        anchorX="center"
-        anchorY="middle"
-        outlineWidth={0.03}
-        outlineColor="#000000"
-        material-transparent
-        material-opacity={0.95}
-      >
-        NEXVORA
-      </Text>
+      <mesh position={[0, 2.5, 0]}>
+        <planeGeometry args={[3, 0.75]} />
+        <meshBasicMaterial map={textTexture} transparent />
+      </mesh>
     </group>
   )
 }
@@ -378,16 +409,17 @@ const Scene = () => {
       <ConnectionLine start={[2, 2, -2]} end={[-2, -2, 4]} color={colors.accent3} />
       
       <OrbitControls 
-        enableZoom={true}
+        enableZoom={false}
         enablePan={false}
         autoRotate
-        autoRotateSpeed={1.5}
+        autoRotateSpeed={0.5}
         minPolarAngle={Math.PI / 6}
         maxPolarAngle={Math.PI / 1.5}
-        maxAzimuthAngle={Math.PI / 3}
-        minAzimuthAngle={-Math.PI / 3}
-        minDistance={8}
-        maxDistance={20}
+        maxAzimuthAngle={Math.PI / 4}
+        minAzimuthAngle={-Math.PI / 4}
+        enableDamping
+        dampingFactor={0.05}
+        rotateSpeed={0.5}
       />
     </>
   )
@@ -443,6 +475,21 @@ class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasErr
 }
 
 const ThreeDScene = () => {
+  useEffect(() => {
+    // Disable scroll-to-zoom behavior
+    const preventZoom = (e: WheelEvent) => {
+      if (e.target instanceof HTMLCanvasElement) {
+        e.preventDefault()
+      }
+    }
+    
+    window.addEventListener('wheel', preventZoom, { passive: false })
+    
+    return () => {
+      window.removeEventListener('wheel', preventZoom)
+    }
+  }, [])
+
   return (
     <div className="h-screen w-full relative">
       <Canvas 
