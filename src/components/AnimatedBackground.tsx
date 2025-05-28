@@ -1,7 +1,6 @@
 
 import React, { useRef, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Sphere, Box, Torus, Float, Stars } from '@react-three/drei';
 import * as THREE from 'three';
 
 interface AnimatedShapeProps {
@@ -33,36 +32,35 @@ const AnimatedShape: React.FC<AnimatedShapeProps> = ({
     }
   });
 
-  const materialProps = {
-    color,
-    roughness: 0.1,
-    metalness: 0.8,
-    transparent: true,
-    opacity: 0.7,
-    emissive: color,
-    emissiveIntensity: 0.2
-  };
+  // Create geometry based on shape type
+  const geometry = useMemo(() => {
+    switch (shape) {
+      case 'box':
+        return new THREE.BoxGeometry(size, size, size);
+      case 'torus':
+        return new THREE.TorusGeometry(size, size * 0.4, 16, 100);
+      default:
+        return new THREE.SphereGeometry(size, 32, 32);
+    }
+  }, [shape, size]);
+
+  // Create material
+  const material = useMemo(() => {
+    return new THREE.MeshStandardMaterial({
+      color,
+      roughness: 0.1,
+      metalness: 0.8,
+      transparent: true,
+      opacity: 0.7,
+      emissive: color,
+      emissiveIntensity: 0.2
+    });
+  }, [color]);
 
   return (
-    <Float speed={speed} rotationIntensity={0.8} floatIntensity={1.2}>
-      <group position={position}>
-        {shape === 'sphere' && (
-          <Sphere ref={meshRef} args={[size, 32, 32]}>
-            <meshStandardMaterial {...materialProps} />
-          </Sphere>
-        )}
-        {shape === 'box' && (
-          <Box ref={meshRef} args={[size, size, size]}>
-            <meshStandardMaterial {...materialProps} />
-          </Box>
-        )}
-        {shape === 'torus' && (
-          <Torus ref={meshRef} args={[size, size * 0.4, 16, 100]}>
-            <meshStandardMaterial {...materialProps} />
-          </Torus>
-        )}
-      </group>
-    </Float>
+    <group position={position}>
+      <mesh ref={meshRef} geometry={geometry} material={material} />
+    </group>
   );
 };
 
@@ -88,6 +86,24 @@ const ParticleSystem: React.FC = () => {
     return { positions, colors };
   }, []);
 
+  const particleGeometry = useMemo(() => {
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.BufferAttribute(particles.positions, 3));
+    geometry.setAttribute('color', new THREE.BufferAttribute(particles.colors, 3));
+    return geometry;
+  }, [particles]);
+
+  const particleMaterial = useMemo(() => {
+    return new THREE.PointsMaterial({
+      size: 0.05,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.8,
+      sizeAttenuation: true,
+      blending: THREE.AdditiveBlending
+    });
+  }, []);
+
   useFrame(({ clock }) => {
     if (particlesRef.current) {
       particlesRef.current.rotation.y = clock.getElapsedTime() * 0.05;
@@ -96,30 +112,7 @@ const ParticleSystem: React.FC = () => {
   });
 
   return (
-    <points ref={particlesRef}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          count={1000}
-          array={particles.positions}
-          itemSize={3}
-        />
-        <bufferAttribute
-          attach="attributes-color"
-          count={1000}
-          array={particles.colors}
-          itemSize={3}
-        />
-      </bufferGeometry>
-      <pointsMaterial
-        size={0.05}
-        vertexColors
-        transparent
-        opacity={0.8}
-        sizeAttenuation
-        blending={THREE.AdditiveBlending}
-      />
-    </points>
+    <points ref={particlesRef} geometry={particleGeometry} material={particleMaterial} />
   );
 };
 
@@ -141,7 +134,6 @@ const AnimatedBackground: React.FC = () => {
         <pointLight position={[10, 10, 10]} intensity={1} color="#9b87f5" />
         <pointLight position={[-10, -10, -10]} intensity={0.5} color="#06b6d4" />
         
-        <Stars radius={50} depth={25} count={2000} factor={2} saturation={0} fade speed={1} />
         <ParticleSystem />
         
         <AnimatedShape position={[-6, 3, 0]} color="#9b87f5" speed={0.8} shape="sphere" size={1.2} />
