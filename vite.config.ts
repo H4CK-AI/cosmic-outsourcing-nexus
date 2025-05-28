@@ -19,21 +19,4 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  optimizeDeps: {
-    include: ['three', '@react-three/fiber', '@react-three/drei'],
-    force: true
-  },
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          three: ['three'],
-          'react-three': ['@react-three/fiber', '@react-three/drei']
-        }
-      }
-    }
-  },
-  esbuild: {
-    target: 'es2020'
-  }
 }));
