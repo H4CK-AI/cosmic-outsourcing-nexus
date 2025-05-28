@@ -1,7 +1,6 @@
 
 import React, { useRef, useState, useEffect, Suspense } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
 import gsap from 'gsap'
 
@@ -113,9 +112,9 @@ const ServiceNode = ({ position = [0, 0, 0], color = "#9b87f5", size = 0.5, text
   )
 }
 
-// Enhanced connection line with animation
+// Enhanced connection line with animation - Fixed ref type
 const ConnectionLine = ({ start, end, color = "#ffffff" }) => {
-  const ref = useRef<THREE.Line>()
+  const ref = useRef<THREE.Line>(null!)
   
   const points = React.useMemo(() => [
     new THREE.Vector3(...start),
@@ -327,14 +326,29 @@ const CentralGlobe = () => {
   )
 }
 
-// Main scene component
-const Scene = () => {
+// Camera controller component to fix zoom/scroll issues
+const CameraController = () => {
   const { camera } = useThree()
   
   useEffect(() => {
     camera.position.set(0, 3, 12)
+    camera.lookAt(0, 0, 0)
   }, [camera])
 
+  useFrame(() => {
+    // Gentle auto-rotation without interfering with user controls
+    if (camera) {
+      camera.position.x = Math.sin(Date.now() * 0.0001) * 0.5
+      camera.position.z = 12 + Math.cos(Date.now() * 0.0001) * 0.5
+      camera.lookAt(0, 0, 0)
+    }
+  })
+
+  return null
+}
+
+// Main scene component
+const Scene = () => {
   // Enhanced service arrays with more variety
   const bpmServices = ["Customer Support", "Data Entry", "Back Office", "Recruitment", "Finance & Accounting"]
   const lpoServices = ["Legal Review", "Contract Analysis", "Compliance", "Research", "Documentation"]
@@ -378,7 +392,7 @@ const Scene = () => {
         speed={0.4} 
         height={0} 
         services={bpmServices} 
-        color={colors.bpm} 
+        color={colors.bmp} 
         shape="sphere"
       />
       <ServiceOrbit 
@@ -408,19 +422,7 @@ const Scene = () => {
       <ConnectionLine start={[-4, 0, 2]} end={[4, -1, -4]} color={colors.accent2} />
       <ConnectionLine start={[2, 2, -2]} end={[-2, -2, 4]} color={colors.accent3} />
       
-      <OrbitControls 
-        enableZoom={false}
-        enablePan={false}
-        autoRotate
-        autoRotateSpeed={0.5}
-        minPolarAngle={Math.PI / 6}
-        maxPolarAngle={Math.PI / 1.5}
-        maxAzimuthAngle={Math.PI / 4}
-        minAzimuthAngle={-Math.PI / 4}
-        enableDamping
-        dampingFactor={0.05}
-        rotateSpeed={0.5}
-      />
+      <CameraController />
     </>
   )
 }
@@ -459,12 +461,12 @@ class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasErr
           <div className="text-white text-center p-8">
             <h2 className="text-2xl mb-4 cosmic-text-gradient">3D Visualization Loading...</h2>
             <p className="text-white/60">Initializing premium 3D experience</p>
-            <button 
-              className="mt-6 px-6 py-3 bg-cosmic-accent rounded-lg hover:bg-cosmic-highlight transition-colors"
+            <div 
+              className="mt-6 px-6 py-3 bg-cosmic-accent rounded-lg hover:bg-cosmic-highlight transition-colors cursor-pointer"
               onClick={() => this.setState({ hasError: false })}
             >
               Retry
-            </button>
+            </div>
           </div>
         </div>
       );
@@ -476,10 +478,11 @@ class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasErr
 
 const ThreeDScene = () => {
   useEffect(() => {
-    // Disable scroll-to-zoom behavior
+    // Disable scroll-to-zoom behavior and prevent default scrolling within canvas
     const preventZoom = (e: WheelEvent) => {
       if (e.target instanceof HTMLCanvasElement) {
         e.preventDefault()
+        e.stopPropagation()
       }
     }
     
