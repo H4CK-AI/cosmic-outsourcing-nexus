@@ -1,7 +1,7 @@
 
 import React, { useRef, useState, useEffect, Suspense } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { OrbitControls, Stars, Text, Float, Sphere, Box, Torus } from '@react-three/drei'
+import { OrbitControls, Stars, Text, Float } from '@react-three/drei'
 import * as THREE from 'three'
 import gsap from 'gsap'
 
@@ -39,14 +39,6 @@ const ServiceNode = ({ position = [0, 0, 0], color = "#9b87f5", size = 0.5, text
   })
 
   const renderShape = () => {
-    const shapeProps = {
-      ref: meshRef,
-      onPointerOver: () => setHovered(true),
-      onPointerOut: () => setHovered(false),
-      castShadow: true,
-      receiveShadow: true
-    }
-
     const material = (
       <meshStandardMaterial 
         color={color} 
@@ -61,11 +53,44 @@ const ServiceNode = ({ position = [0, 0, 0], color = "#9b87f5", size = 0.5, text
 
     switch (shape) {
       case 'box':
-        return <Box {...shapeProps} args={[size, size, size]}>{material}</Box>
+        return (
+          <mesh 
+            ref={meshRef}
+            onPointerOver={() => setHovered(true)}
+            onPointerOut={() => setHovered(false)}
+            castShadow
+            receiveShadow
+          >
+            <boxGeometry args={[size, size, size]} />
+            {material}
+          </mesh>
+        )
       case 'torus':
-        return <Torus {...shapeProps} args={[size, size * 0.4, 16, 100]}>{material}</Torus>
+        return (
+          <mesh 
+            ref={meshRef}
+            onPointerOver={() => setHovered(true)}
+            onPointerOut={() => setHovered(false)}
+            castShadow
+            receiveShadow
+          >
+            <torusGeometry args={[size, size * 0.4, 16, 100]} />
+            {material}
+          </mesh>
+        )
       default:
-        return <Sphere {...shapeProps} args={[size, 32, 32]}>{material}</Sphere>
+        return (
+          <mesh 
+            ref={meshRef}
+            onPointerOver={() => setHovered(true)}
+            onPointerOut={() => setHovered(false)}
+            castShadow
+            receiveShadow
+          >
+            <sphereGeometry args={[size, 32, 32]} />
+            {material}
+          </mesh>
+        )
     }
   }
 
