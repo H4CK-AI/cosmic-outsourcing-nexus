@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useEffect, Suspense } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
@@ -134,7 +133,7 @@ const ConnectionLine = ({ start, end, color = "#ffffff" }) => {
     }
   })
   
-  return <line ref={ref} geometry={geometry} material={material} />
+  return <primitive object={new THREE.Line(geometry, material)} ref={ref} />
 }
 
 // Enhanced orbital path with glow
@@ -392,7 +391,7 @@ const Scene = () => {
         speed={0.4} 
         height={0} 
         services={bpmServices} 
-        color={colors.bmp} 
+        color={colors.bpm} 
         shape="sphere"
       />
       <ServiceOrbit 
