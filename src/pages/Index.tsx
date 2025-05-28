@@ -27,7 +27,9 @@ const Index = () => {
   
   return (
     <div className="relative">
-      <LiquidBackground />
+      <LiquidBackground>
+        <div></div>
+      </LiquidBackground>
       <AnimatedBackground />
       <MotionGraphics />
       
