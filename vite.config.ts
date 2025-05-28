@@ -20,7 +20,8 @@ export default defineConfig(({ mode }) => ({
     },
   },
   optimizeDeps: {
-    include: ['three', '@react-three/fiber', '@react-three/drei']
+    include: ['three', '@react-three/fiber', '@react-three/drei'],
+    force: true
   },
   build: {
     rollupOptions: {
@@ -31,5 +32,8 @@ export default defineConfig(({ mode }) => ({
         }
       }
     }
+  },
+  esbuild: {
+    target: 'es2020'
   }
 }));
